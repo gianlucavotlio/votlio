@@ -7,13 +7,16 @@ import {
   topics,
 } from "@/lib/sampleData";
 import { useCompletedLevels } from "@/lib/useCompletedLevels";
+import { useAuth } from "@/lib/useAuth";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
+import { GuestModeBanner } from "@/components/GuestModeBanner";
 import { Footer } from "@/components/Footer";
 
 export default function TopicDetail() {
   const { topicId } = useParams<{ topicId: string }>();
   const navigate = useNavigate();
   const { isLevelCompleted, isPerfectCompletion } = useCompletedLevels();
+  const { isGuest } = useAuth();
 
   if (!topicId) {
     navigate("/");
@@ -30,6 +33,9 @@ export default function TopicDetail() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-purple-50">
+      {/* Guest Mode Banner */}
+      <GuestModeBanner isGuest={isGuest} />
+
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">

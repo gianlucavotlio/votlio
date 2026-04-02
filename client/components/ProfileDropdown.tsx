@@ -1,7 +1,7 @@
 import { useAuth } from '@/lib/useAuth';
 import { useUserProfile } from '@/lib/useUserProfile';
 import { useRankProgress } from '@/lib/useRankProgress';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { LogOut, User } from 'lucide-react';
 import {
   DropdownMenu,
@@ -63,11 +63,40 @@ export const ProfileDropdown = () => {
     navigate('/auth');
   };
 
-  // Don't show dropdown for guests
+  // Trigger button styles
+  const triggerButtonClasses = "inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors cursor-pointer flex-shrink-0";
+
+  // GUEST MODE
   if (isGuest || !user) {
-    return null;
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className={triggerButtonClasses}>
+            <User className="w-5 h-5 text-blue-600" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-72">
+          {/* Guest Mode Section */}
+          <div className="px-4 py-4 text-center">
+            <div className="text-3xl mb-3">🎭</div>
+            <h3 className="text-sm font-semibold text-foreground mb-1">
+              Du bist im Gastmodus
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+              Melde dich kostenlos an, um deinen Fortschritt zu speichern und Ränge freizuschalten.
+            </p>
+            <Link to="/auth" className="w-full inline-block">
+              <button className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg text-sm transition-all duration-200">
+                Kostenlos anmelden
+              </button>
+            </Link>
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
   }
 
+  // LOGGED-IN MODE
   const username = profile?.username || user.email?.split('@')[0] || 'User';
   const xp = profile?.xp || 0;
   const rankName = rankData?.rank_name || 'Wähler';
@@ -77,7 +106,7 @@ export const ProfileDropdown = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors cursor-pointer flex-shrink-0">
+        <button className={triggerButtonClasses}>
           <User className="w-5 h-5 text-blue-600" />
         </button>
       </DropdownMenuTrigger>

@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useAuth } from "@/lib/useAuth";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
+import { GuestModeBanner } from "@/components/GuestModeBanner";
 import { supabase } from "@/lib/supabaseClient";
 
 // Reference rank data with emoji, description, and XP requirement
@@ -25,10 +26,44 @@ export interface RankProgressData {
 
 export default function RankProgression() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
   const [rankData, setRankData] = useState<RankProgressData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Show login required for guests
+  if (isGuest) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-purple-50">
+        <GuestModeBanner isGuest={isGuest} />
+        <div className="flex items-center justify-center min-h-[calc(100vh-64px)]">
+          <div className="max-w-md mx-auto px-4 text-center">
+            <div className="text-5xl mb-4">🔒</div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-3">
+              Rang und Fortschritt freischalten
+            </h1>
+            <p className="text-gray-600 mb-6">
+              Diese Funktion ist nur für angemeldete Benutzer verfügbar. Melde dich an, um deine XP, deinen Rang und deinen Fortschritt zu speichern.
+            </p>
+            <div className="flex flex-col gap-3">
+              <Link
+                to="/auth"
+                className="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+              >
+                Jetzt anmelden
+              </Link>
+              <button
+                onClick={() => navigate(-1)}
+                className="px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-colors"
+              >
+                Weiter lernen
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Fetch rank progress from Supabase RPC
   useEffect(() => {
@@ -105,6 +140,9 @@ export default function RankProgression() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-purple-50">
+      {/* Guest Mode Banner */}
+      <GuestModeBanner isGuest={isGuest} />
+
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">

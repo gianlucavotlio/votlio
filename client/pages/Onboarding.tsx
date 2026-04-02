@@ -6,8 +6,9 @@ export default function Onboarding() {
   const { isGuest } = useAuth();
 
   const handleStartClick = () => {
-    // Navigate to auth (login/signup)
-    navigate("/auth");
+    // Auto-enter guest mode and navigate to home
+    localStorage.setItem('votlio_guest', 'true');
+    navigate("/home");
   };
 
   return (

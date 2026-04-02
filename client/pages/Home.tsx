@@ -99,7 +99,7 @@ export default function Home() {
             </div>
             <div className="card-interactive text-center">
               <div className="text-xl sm:text-3xl font-bold text-blue-600">
-                {isGuest ? "∞" : userProfile?.profile?.xp || 0}
+                {isGuest ? 0 : userProfile?.profile?.xp || 0}
               </div>
               <p className="text-xs text-muted-foreground">XP</p>
             </div>
