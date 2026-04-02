@@ -9,6 +9,16 @@ import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { UserProfileContext } from "@/contexts/UserProfileContext";
 import { useContext } from "react";
 
+const buttonLabels: Record<string, string> = {
+  "grundgesetz": "Grundgesetz einfach lernen",
+  "bundestag": "Bundestag verstehen lernen",
+  "bundesregierung": "Regierung erklären lassen",
+  "bundestagswahlen": "Wahlsystem verstehen",
+  "gesetzgebung": "Gesetzgebung lernen",
+  "bundesrat-foederalismus": "Föderalismus verstehen",
+  "justiz-verfassungsgericht": "Justiz erklärt",
+};
+
 export default function Home() {
   const { progress, isLoaded } = useProgress();
   const { user, isGuest } = useAuth();
@@ -65,12 +75,17 @@ export default function Home() {
         {/* Hero section */}
         <section className="mb-12 sm:mb-16 px-2 sm:px-0">
           <div className="text-center mb-6 sm:mb-12">
-            <h2 className="text-2xl sm:text-4xl font-bold text-foreground mb-2 sm:mb-4">
-              Willkommen!
-            </h2>
-            <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Lerne Politik spielerisch. Wähle ein Thema und erweitere dein Wissen.
-            </p>
+            <h1 className="text-3xl sm:text-5xl font-bold text-blue-600 mb-4 sm:mb-6">
+              Politik einfach lernen mit Votlio
+            </h1>
+            <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+              <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                Verstehe die Grundlagen der deutschen Politik – einfach erklärt.
+              </p>
+              <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                Von Grundgesetz bis Bundestag: Lerne, wie Deutschland wirklich funktioniert.
+              </p>
+            </div>
           </div>
 
           {/* Stats preview */}
@@ -307,11 +322,11 @@ export default function Home() {
         {/* Topics grid */}
         <section className="mt-16 sm:mt-28 px-2 sm:px-0">
           <div className="mb-8 sm:mb-16">
-            <h3 className="text-2xl sm:text-4xl font-bold text-[#111827] mb-2 sm:mb-3">
-              Themenbereiche
-            </h3>
-            <p className="text-sm sm:text-lg text-gray-600">
-              Wähle ein Thema und vertiefe dein Wissen
+            <h2 className="text-2xl sm:text-4xl font-bold text-[#111827] mb-2 sm:mb-3">
+              Wähle ein Lernthema
+            </h2>
+            <p className="text-sm sm:text-lg text-gray-600 mb-4">
+              Wähle ein Thema und lerne die Grundlagen der deutschen Staatsverfassung, Gesetzgebung und politischen Institutionen – alles einfach erklärt für Schüler und Interessierte.
             </p>
           </div>
 
@@ -334,7 +349,7 @@ export default function Home() {
 
                   {/* View button */}
                   <button className="w-full flex items-center justify-center gap-2 group-hover:gap-3 transition-all py-2 sm:py-3 lg:py-4 px-4 font-semibold text-sm sm:text-base bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg sm:rounded-xl shadow-md hover:shadow-lg active:scale-95">
-                    Ansehen
+                    {buttonLabels[topic.id] || "Ansehen"}
                     <ChevronRight className="w-4 sm:w-5 h-4 sm:h-5" />
                   </button>
                 </div>
