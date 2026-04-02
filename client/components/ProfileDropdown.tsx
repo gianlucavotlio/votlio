@@ -1,4 +1,4 @@
-import { useAuth } from '@/lib/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useUserProfile } from '@/lib/useUserProfile';
 import { useRankProgress } from '@/lib/useRankProgress';
 import { useNavigate, Link } from 'react-router-dom';

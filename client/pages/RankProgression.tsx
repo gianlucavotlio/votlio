@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
-import { useAuth } from "@/lib/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { GuestModeBanner } from "@/components/GuestModeBanner";
 import { supabase } from "@/lib/supabaseClient";
@@ -30,6 +30,53 @@ export default function RankProgression() {
   const [rankData, setRankData] = useState<RankProgressData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Fetch rank progress from Supabase RPC
+  useEffect(() => {
+    if (isGuest) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchRankData = async () => {
+      if (!user) {
+        setError("User not authenticated");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const { data, error: rpcError } = await supabase.rpc(
+          "get_rank_progress_from_profiles",
+          { p_user_id: user.id }
+        );
+
+        if (rpcError) {
+          console.error("RPC Error:", rpcError);
+          setError("Failed to fetch rank data");
+          setRankData(null);
+        } else if (data && data.length > 0) {
+          console.log("Rank progress data loaded:", data[0]);
+          setRankData(data[0]);
+        } else {
+          setError("No rank data found");
+        }
+      } catch (err) {
+        console.error("Error fetching rank progress:", err);
+        setError("An error occurred while fetching rank data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchRankData();
+    }
+  }, [user, isGuest, retryCount]);
 
   // Show login required for guests
   if (isGuest) {
@@ -65,44 +112,6 @@ export default function RankProgression() {
     );
   }
 
-  // Fetch rank progress from Supabase RPC
-  useEffect(() => {
-    const fetchRankData = async () => {
-      if (!user) {
-        setError("User not authenticated");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setError(null);
-
-        const { data, error: rpcError } = await supabase.rpc(
-          "get_rank_progress_from_profiles",
-          { p_user_id: user.id }
-        );
-
-        if (rpcError) {
-          console.error("RPC Error:", rpcError);
-          setError("Failed to fetch rank data");
-          setRankData(null);
-        } else if (data && data.length > 0) {
-          setRankData(data[0]);
-        } else {
-          setError("No rank data found");
-        }
-      } catch (err) {
-        console.error("Error fetching rank progress:", err);
-        setError("An error occurred while fetching rank data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRankData();
-  }, [user]);
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-purple-50 flex items-center justify-center">
@@ -115,17 +124,33 @@ export default function RankProgression() {
   }
 
   if (error || !rankData) {
+    const handleRetry = useCallback(() => {
+      setError(null);
+      setRetryCount(prev => prev + 1);
+    }, []);
+
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="max-w-md mx-auto px-4 text-center">
-          <div className="text-4xl mb-4">⚠️</div>
-          <p className="text-gray-600 mb-4">{error || "Fehler beim Laden der Daten"}</p>
-          <button
-            onClick={() => navigate(-1)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Zurück
-          </button>
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-purple-50">
+        <GuestModeBanner isGuest={isGuest} />
+        <div className="flex items-center justify-center min-h-[calc(100vh-64px)]">
+          <div className="max-w-md mx-auto px-4 text-center">
+            <div className="text-4xl mb-4">⚠️</div>
+            <p className="text-gray-600 mb-4">{error || "Fehler beim Laden der Daten"}</p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleRetry}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+              >
+                Erneut versuchen
+              </button>
+              <button
+                onClick={() => navigate(-1)}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Zurück
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );

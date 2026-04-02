@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { topics } from "@/lib/sampleData";
 import { ChevronRight, Trophy } from "lucide-react";
 import { useProgress } from "@/lib/useProgress";
-import { useAuth } from "@/lib/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { UserStats } from "@/components/UserStats";
 import { GuestModeBanner } from "@/components/GuestModeBanner";
 import { ProfileDropdown } from "@/components/ProfileDropdown";

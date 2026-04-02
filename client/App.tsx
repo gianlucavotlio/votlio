@@ -22,7 +22,7 @@ import Datenschutz from "./pages/Datenschutz";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import { UserProfileProvider } from "./contexts/UserProfileContext";
-import { useAuth } from "./lib/useAuth";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Onboarding from "./pages/Onboarding";
 import RankProgression from "./pages/RankProgression";
 import TermMatching from "./pages/TermMatching";
@@ -65,8 +65,9 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <UserProfileProvider>
-        <BrowserRouter>
+      <AuthProvider>
+        <UserProfileProvider>
+          <BrowserRouter>
           <Routes>
             {/* Landing page: shows Onboarding if not logged in, redirects to home if logged in */}
             <Route path="/" element={<LandingPage />} />
@@ -162,8 +163,9 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
-      </UserProfileProvider>
+          </BrowserRouter>
+        </UserProfileProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

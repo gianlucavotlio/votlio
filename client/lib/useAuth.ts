@@ -20,10 +20,16 @@ export const useAuth = () => {
     error: null,
   });
 
+  const [isGuestMode, setIsGuestMode] = useState(false);
+
   // Check session on mount
   useEffect(() => {
     const checkSession = async () => {
       try {
+        // Check for guest mode from localStorage
+        const guestMode = localStorage.getItem('votlio_guest') === 'true';
+        setIsGuestMode(guestMode);
+
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) throw error;
         setAuthState({
@@ -56,8 +62,17 @@ export const useAuth = () => {
       }
     );
 
+    // Listen for localStorage changes (guest mode)
+    const handleStorageChange = () => {
+      const guestMode = localStorage.getItem('votlio_guest') === 'true';
+      setIsGuestMode(guestMode);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
     return () => {
       subscription?.unsubscribe();
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 
@@ -138,6 +153,7 @@ export const useAuth = () => {
 
       // Clear guest mode flag
       localStorage.removeItem('votlio_guest');
+      setIsGuestMode(false);
 
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
@@ -159,9 +175,6 @@ export const useAuth = () => {
       return { success: false, error: errorMsg };
     }
   };
-
-  // Check if guest mode is enabled via localStorage
-  const isGuestMode = localStorage.getItem('votlio_guest') === 'true';
 
   // User is guest if: no Supabase user AND guest mode is enabled
   const isGuest = !authState.user && isGuestMode;
