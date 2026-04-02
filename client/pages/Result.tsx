@@ -3,7 +3,7 @@ import { sampleChapters } from "@/lib/sampleData";
 import { ChevronLeft, Zap, Trophy, Share2, Copy, Check, AlertCircle, Star, TrendingUp } from "lucide-react";
 import { GameSession, GameResult } from "@shared/api";
 import { useProgress } from "@/lib/useProgress";
-import { useAuth } from "@/lib/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { useState } from "react";
 

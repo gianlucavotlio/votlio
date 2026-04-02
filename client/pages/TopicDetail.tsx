@@ -7,7 +7,7 @@ import {
   topics,
 } from "@/lib/sampleData";
 import { useCompletedLevels } from "@/lib/useCompletedLevels";
-import { useAuth } from "@/lib/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { GuestModeBanner } from "@/components/GuestModeBanner";
 import { Footer } from "@/components/Footer";

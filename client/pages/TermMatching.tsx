@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ChevronLeft, Lock, CheckCircle, XCircle, X, Info } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@/lib/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { GuestModeBanner } from '@/components/GuestModeBanner';
 import { ProfileDropdown } from '@/components/ProfileDropdown';
 
@@ -24,7 +24,7 @@ interface RpcResponse {
 const LEVELS = {
   1: {
     title: 'Grundlagen des Staates',
-    terms: ['Grundgesetz', 'Bundestag', 'Bundesregierung', 'Bundesrat', 'Bundespräsident', 'Ministerpräsident', 'Verwaltung', 'Föderale Struktur', 'Legislatur', 'Judikative'],
+    terms: ['Grundgesetz', 'Bundestag', 'Bundesregierung', 'Bundesrat', 'Bundespräsident', 'Ministerpräsident', 'Föderale Struktur', 'Judikative', 'Legislative', 'Demokratie'],
     definitions: [
       { short: 'höchste Rechtsquelle', long: 'Das Grundgesetz ist die Verfassung der Bundesrepublik Deutschland. Es legt die Grundrechte fest und bestimmt die Struktur des Staates. Kein anderes Gesetz darf dem Grundgesetz widersprechen.' },
       { short: 'Parlament', long: 'Der Bundestag ist das Parlament der Bundesrepublik und wird direkt vom Volk gewählt. Er macht Gesetze und kontrolliert die Regierung. Abgeordnete vertreten ihre Wahlkreise und Parteien.' },
@@ -32,10 +32,10 @@ const LEVELS = {
       { short: 'Vertretung der Länder', long: 'Der Bundesrat ist das Organ, in dem die Bundesländer vertreten sind. Jedes Land entsendet Minister in den Bundesrat. Er muss vielen Gesetzen zustimmen und schützt die Rechte der Länder.' },
       { short: 'Repräsentant des deutschen Staates', long: 'Der Bundespräsident ist das Staatsoberhaupt der Bundesrepublik. Er unterzeichnet Gesetze und ernennt Minister und Richter. Seine Rolle ist eher symbolisch, aber sehr wichtig für die Einheit.' },
       { short: 'Regierungschef eines Bundeslandes', long: 'Der Ministerpräsident leitet die Landesregierung eines Bundeslandes. Er ist der höchste politische Funktionär auf Länderebene und führt die Geschäfte des Landes.' },
-      { short: 'Umsetzung von Gesetzen', long: 'Die Verwaltung ist der Teil des Staates, der Gesetze in die Praxis umsetzt. Sie arbeitet in Behörden und Ämtern und verwaltet Schulen, Sozialleistungen, Steuern und vieles mehr.' },
       { short: 'Machtverteilung auf mehrere Ebenen', long: 'Die föderale Struktur Deutschlands bedeutet, dass die Macht auf Bund und Länder verteilt ist. Jede Ebene hat eigene Aufgaben und Rechte. Dies bietet mehr Mitsprache auf lokaler Ebene.' },
-      { short: 'Gesetzgebende Gewalt', long: 'Die Legislatur ist die gesetzgebende Gewalt eines Staates. Sie ist verantwortlich für die Verabschiedung von Gesetzen. Im Bundestag sitzen Abgeordnete, die die Bevölkerung vertreten und über Gesetze abstimmen.' },
       { short: 'Rechtsprechende Gewalt', long: 'Die Judikative ist die Rechtsprechung, also die Gerichte und Richter. Sie entscheiden Rechtsstreitigkeiten und überprüfen, ob Gesetze und Behördenhandeln verfassungsgemäß sind. Die Unabhängigkeit der Gerichte ist ein Grundprinzip.' },
+      { short: 'Gesetzgebende Gewalt', long: 'Die Legislative ist die gesetzgebende Gewalt eines Staates. Sie ist verantwortlich für die Verabschiedung von Gesetzen. Im Bundestag sitzen Abgeordnete, die die Bevölkerung vertreten und über Gesetze abstimmen.' },
+      { short: 'Herrschaft des Volkes', long: 'Demokratie ist eine Herrschaftsform, bei der die Macht vom Volk ausgeht. Die Bürger beteiligen sich direkt oder durch Vertreter an politischen Entscheidungen. Deutschland ist eine parlamentarische Demokratie.' },
     ],
     correctMatches: {
       'Grundgesetz': 'höchste Rechtsquelle',
@@ -44,18 +44,17 @@ const LEVELS = {
       'Bundesrat': 'Vertretung der Länder',
       'Bundespräsident': 'Repräsentant des deutschen Staates',
       'Ministerpräsident': 'Regierungschef eines Bundeslandes',
-      'Verwaltung': 'Umsetzung von Gesetzen',
       'Föderale Struktur': 'Machtverteilung auf mehrere Ebenen',
-      'Legislatur': 'Gesetzgebende Gewalt',
       'Judikative': 'Rechtsprechende Gewalt',
+      'Legislative': 'Gesetzgebende Gewalt',
+      'Demokratie': 'Herrschaft des Volkes',
     },
   },
   2: {
     title: 'Politische Prinzipien',
-    terms: ['Gewaltenteilung', 'Demokratie', 'Rechtsstaat', 'Föderalismus', 'Pluralismus', 'Legitimation', 'Gewaltenkontrolle', 'Volkssouveränität', 'Parlamentarismus', 'Repräsentation'],
+    terms: ['Gewaltenteilung', 'Rechtsstaat', 'Föderalismus', 'Pluralismus', 'Legitimation', 'Gewaltenkontrolle', 'Volkssouveränität', 'Parlamentarismus', 'Repräsentation', 'Mehrheitsprinzip'],
     definitions: [
       { short: 'Aufteilung staatlicher Macht', long: 'Die Gewaltenteilung ist ein Kernprinzip der Demokratie: Die Macht ist auf Legislative (Gesetzgebung), Exekutive (Ausführung) und Judikative (Rechtsprechung) verteilt. So kann keine Seite zu mächtig werden.' },
-      { short: 'Herrschaft des Volkes', long: 'In einer Demokratie geht die Herrschaft vom Volk aus. Die Bürger wählen ihre Vertreter und können an Entscheidungen teilhaben. Dies geschieht durch Wahlen, Abstimmungen und Mitsprache.' },
       { short: 'Bindung an Recht und Gesetz', long: 'Der Rechtsstaat bedeutet, dass alle – auch der Staat – an die Gesetze gebunden sind. Es gibt keine willkürliche Herrschaft. Unabhängige Gerichte schützen die Rechte der Bürger vor staatlicher Gewalt.' },
       { short: 'Machtverteilung zwischen Bund und Ländern', long: 'Der Föderalismus ist die Struktur, in der ein Staat aus mehreren Bundesländern besteht. Bund und Länder teilen sich die Macht. Dies ermöglicht Vielfalt und regionale Besonderheiten.' },
       { short: 'Vielfalt von Meinungen und Gruppen', long: 'Pluralismus bedeutet, dass verschiedene Gruppen und Meinungen in der Gesellschaft nebeneinander existieren können. Parteien, Verbände und Medien bringen unterschiedliche Perspektiven ein und bereichern die Debatte.' },
@@ -64,10 +63,10 @@ const LEVELS = {
       { short: 'Die höchste Gewalt liegt beim Volk', long: 'Volkssouveränität bedeutet, dass alle Staatsgewalt vom Volk ausgeht. Der Staat hat seine Macht vom Volk und muss sich vor ihm verantworten. Wahlen und Abstimmungen sind Ausdruck dieser Souveränität.' },
       { short: 'Regierungssystem mit Parlamentsbeteiligung', long: 'Der Parlamentarismus ist ein Regierungssystem, in dem das Parlament eine zentrale Rolle spielt. Die Regierung ist vom Vertrauen des Parlaments abhängig und muss sich diesem gegenüber verantworten. Dies sichert demokratische Kontrolle.' },
       { short: 'Vertretung durch gewählte Abgeordnete', long: 'Repräsentation bedeutet, dass das Volk nicht direkt regiert, sondern sich durch gewählte Vertreter vertreten lässt. Diese Abgeordneten treffen Entscheidungen im Namen des Volkes. Dies ist typisch für repräsentative Demokratien wie Deutschland.' },
+      { short: 'Entscheidungen durch Mehrheit', long: 'Das Mehrheitsprinzip bedeutet, dass demokratische Entscheidungen durch Abstimmungen getroffen werden. Die Mehrheit der Stimmen entscheidet. Dies schützt die Demokratie vor Willkür einzelner.' },
     ],
     correctMatches: {
       'Gewaltenteilung': 'Aufteilung staatlicher Macht',
-      'Demokratie': 'Herrschaft des Volkes',
       'Rechtsstaat': 'Bindung an Recht und Gesetz',
       'Föderalismus': 'Machtverteilung zwischen Bund und Ländern',
       'Pluralismus': 'Vielfalt von Meinungen und Gruppen',
@@ -76,6 +75,7 @@ const LEVELS = {
       'Volkssouveränität': 'Die höchste Gewalt liegt beim Volk',
       'Parlamentarismus': 'Regierungssystem mit Parlamentsbeteiligung',
       'Repräsentation': 'Vertretung durch gewählte Abgeordnete',
+      'Mehrheitsprinzip': 'Entscheidungen durch Mehrheit',
     },
   },
   3: {
@@ -196,27 +196,10 @@ export default function TermMatching() {
 
         setProgress(progressData);
 
-        // Find current level: prefer incomplete unlocked level
-        // If all unlocked levels are completed, show level selection instead
-        const incompleteLevel = progressData?.find((p) => p.unlocked === true && p.completed === false);
-
-        if (incompleteLevel) {
-          // Found a level that's unlocked but not completed yet
-          console.log('Setting current level to:', incompleteLevel.level);
-          setCurrentLevel(incompleteLevel.level);
-          setIsReplay(false);
-
-          // Initialize shuffled definitions for this level
-          const levelData = LEVELS[incompleteLevel.level as keyof typeof LEVELS];
-          const shortDefs = levelData.definitions.map((d) => typeof d === 'string' ? d : d.short);
-          const shuffled = [...shortDefs].sort(() => Math.random() - 0.5);
-          setShuffledDefinitions(shuffled);
-        } else {
-          // All unlocked levels are completed or none are available
-          // Show level selection screen (currentLevel = null triggers level selection)
-          console.log('No incomplete levels found, showing selection');
-          setCurrentLevel(null);
-        }
+        // Always show level selection screen first (currentLevel = null)
+        // This allows users to see and choose all available levels
+        console.log('Showing level selection');
+        setCurrentLevel(null);
 
         setLoading(false);
       } catch (err) {
@@ -432,9 +415,52 @@ export default function TermMatching() {
     setShowGame(false); // Reset to learning screen
   };
 
-  const handleNext = () => {
-    // Reload progress to update currentLevel
-    window.location.reload();
+  const handleNext = async () => {
+    // Move to the next level
+    if (!currentLevel) return;
+
+    // For guests, just move to the next available level
+    if (isGuest) {
+      const nextLevelNum = currentLevel + 1;
+      if (nextLevelNum <= 3) {
+        handleLevelClick(nextLevelNum);
+      } else {
+        // All levels completed
+        setCurrentLevel(null);
+      }
+      return;
+    }
+
+    // For authenticated users, reload progress from database and move to next level
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('term_matching_progress')
+        .select('*')
+        .order('level', { ascending: true });
+
+      if (!fetchError && data) {
+        setProgress(data as TermMatchingProgress[]);
+
+        // Find next unlocked incomplete level
+        const nextLevel = data.find((p) => p.unlocked === true && p.completed === false);
+
+        if (nextLevel) {
+          handleLevelClick(nextLevel.level);
+        } else {
+          // All levels completed, show level selection
+          setCurrentLevel(null);
+        }
+      }
+    } catch (err) {
+      console.error('Error loading next level:', err);
+      // Fallback: try to go to next level anyway
+      const nextLevelNum = currentLevel + 1;
+      if (nextLevelNum <= 3) {
+        handleLevelClick(nextLevelNum);
+      } else {
+        setCurrentLevel(null);
+      }
+    }
   };
 
   // Wait for auth state to load before showing anything
@@ -619,7 +645,7 @@ export default function TermMatching() {
 
             <div className="flex gap-3 justify-center">
               <button
-                onClick={() => handleLevelClick(currentLevel)}
+                onClick={() => setCurrentLevel(null)}
                 className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
               >
                 Zurück

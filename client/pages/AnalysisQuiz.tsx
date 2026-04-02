@@ -7,7 +7,7 @@ import { useProgress } from "@/lib/useProgress";
 import { useAnalysisProgress } from "@/lib/useAnalysisProgress";
 import { useUserProfile } from "@/lib/useUserProfile";
 import { useRankProgress } from "@/lib/useRankProgress";
-import { useAuth } from "@/lib/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { UserStats } from "@/components/UserStats";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { GuestModeBanner } from "@/components/GuestModeBanner";

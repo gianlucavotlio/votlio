@@ -11,7 +11,7 @@ import { SequenceItem, GameSession, AnswerOption } from "@shared/api";
 import { useProgress } from "@/lib/useProgress";
 import { useQuizProgress } from "@/lib/useQuizProgress";
 import { useUserProfile } from "@/lib/useUserProfile";
-import { useAuth } from "@/lib/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { UserStats } from "@/components/UserStats";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { GuestModeBanner } from "@/components/GuestModeBanner";
