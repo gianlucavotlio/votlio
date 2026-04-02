@@ -1,15 +1,20 @@
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/lib/useAuth";
+import { useNavigate, useEffect, useState } from "react-router-dom";
+import { setGuestMode } from "@/lib/useAuth";
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { isGuest } = useAuth();
+  const [hasNavigated, setHasNavigated] = useState(false);
 
-  const handleStartClick = () => {
-    // Auto-enter guest mode and navigate to home
-    localStorage.setItem('votlio_guest', 'true');
-    navigate("/home");
-  };
+  // Auto-enter guest mode and navigate to home immediately on load
+  useEffect(() => {
+    if (hasNavigated) return; // Prevent multiple navigations
+
+    setHasNavigated(true);
+    // Set guest mode first
+    setGuestMode(true);
+    // Navigate to home (the URL change will trigger a re-render)
+    navigate("/home", { replace: true });
+  }, [navigate, hasNavigated]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-blue-50 via-white to-purple-50 flex flex-col px-4 sm:px-6 lg:px-8">
@@ -73,46 +78,26 @@ export default function Onboarding() {
           </div>
 
           {/* Feature 4 - XP */}
-          {!isGuest && (
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-4 sm:p-5 border border-amber-200 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-start gap-3 sm:gap-4">
-                <span className="text-3xl sm:text-4xl flex-shrink-0">⭐</span>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
-                    XP sammeln
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                    Steige in Ränge auf und erreiche neue Levels
-                  </p>
-                </div>
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-4 sm:p-5 border border-amber-200 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <span className="text-3xl sm:text-4xl flex-shrink-0">⭐</span>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
+                  XP sammeln
+                </h3>
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                  Steige in Ränge auf und erreiche neue Levels
+                </p>
               </div>
             </div>
-          )}
-
-          {/* Guest Mode Warning */}
-          {isGuest && (
-            <div className="bg-amber-50 border border-amber-300 rounded-2xl p-3 sm:p-4 mt-2">
-              <p className="text-xs sm:text-sm text-amber-900">
-                <span className="font-semibold">💡 Tipp:</span> Melde dich an, um deine Fortschritte zu speichern und XP zu sammeln!
-              </p>
-            </div>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* Bottom Section: CTA Button */}
-      <div className="pb-8 sm:pb-12 lg:pb-16 space-y-3">
-        <button
-          onClick={handleStartClick}
-          type="button"
-          className="w-full py-4 sm:py-5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg sm:text-xl rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-2xl active:scale-95 cursor-pointer"
-        >
-          Los geht's 🚀
-        </button>
-        <p className="text-center text-xs sm:text-sm text-gray-500">
-          Du kannst später einen{" "}
-          <span className="text-blue-600 font-semibold">Selbsttest</span>{" "}
-          machen, um deine Position zu bestimmen
+      {/* Bottom Section: Loading Message */}
+      <div className="pb-8 sm:pb-12 lg:pb-16 space-y-3 text-center">
+        <p className="text-base sm:text-lg text-gray-600 font-medium">
+          Wird geladen... 🚀
         </p>
       </div>
     </div>

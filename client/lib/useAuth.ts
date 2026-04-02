@@ -12,6 +12,16 @@ export interface AuthError {
   message: string;
 }
 
+export const setGuestMode = (value: boolean) => {
+  if (value) {
+    localStorage.setItem('votlio_guest', 'true');
+  } else {
+    localStorage.removeItem('votlio_guest');
+  }
+  // Trigger a custom event so other components know to re-render
+  window.dispatchEvent(new Event('votlio_guest_mode_changed'));
+};
+
 export const useAuth = () => {
   const [authState, setAuthState] = useState<AuthState>({
     session: null,
@@ -20,16 +30,12 @@ export const useAuth = () => {
     error: null,
   });
 
-  const [isGuestMode, setIsGuestMode] = useState(false);
+  const [updateTrigger, setUpdateTrigger] = useState(0);
 
   // Check session on mount
   useEffect(() => {
     const checkSession = async () => {
       try {
-        // Check for guest mode from localStorage
-        const guestMode = localStorage.getItem('votlio_guest') === 'true';
-        setIsGuestMode(guestMode);
-
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) throw error;
         setAuthState({
@@ -62,17 +68,21 @@ export const useAuth = () => {
       }
     );
 
-    // Listen for localStorage changes (guest mode)
-    const handleStorageChange = () => {
-      const guestMode = localStorage.getItem('votlio_guest') === 'true';
-      setIsGuestMode(guestMode);
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
     return () => {
       subscription?.unsubscribe();
-      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  // Listen for guest mode changes
+  useEffect(() => {
+    const handleGuestModeChange = () => {
+      setUpdateTrigger(prev => prev + 1);
+    };
+
+    window.addEventListener('votlio_guest_mode_changed', handleGuestModeChange);
+
+    return () => {
+      window.removeEventListener('votlio_guest_mode_changed', handleGuestModeChange);
     };
   }, []);
 
@@ -151,9 +161,8 @@ export const useAuth = () => {
     try {
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
 
-      // Clear guest mode flag
-      localStorage.removeItem('votlio_guest');
-      setIsGuestMode(false);
+      // Clear guest mode flag using the exported function
+      setGuestMode(false);
 
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
@@ -176,11 +185,18 @@ export const useAuth = () => {
     }
   };
 
+  // Dynamically check guest mode from localStorage (uses updateTrigger to force re-render)
+  const isGuestMode = typeof window !== 'undefined' && localStorage.getItem('votlio_guest') === 'true';
+
   // User is guest if: no Supabase user AND guest mode is enabled
   const isGuest = !authState.user && isGuestMode;
 
   // User is authenticated if: has Supabase user OR guest mode is enabled
   const isAuthenticated = !!authState.user || isGuestMode;
+
+  // Include updateTrigger in a comment to ensure it's considered in React's dependency tracking
+  // (prevents stale closures)
+  console.debug('Auth state updated:', { isGuest, isAuthenticated, updateTrigger });
 
   return {
     ...authState,

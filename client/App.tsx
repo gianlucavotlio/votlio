@@ -5,7 +5,8 @@ import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { ReactNode } from "react";
 import Home from "./pages/Home";
 import TopicDetail from "./pages/TopicDetail";
@@ -23,6 +24,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import { UserProfileProvider } from "./contexts/UserProfileContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { setGuestMode } from "./lib/useAuth";
 import Onboarding from "./pages/Onboarding";
 import RankProgression from "./pages/RankProgression";
 import TermMatching from "./pages/TermMatching";
@@ -46,18 +48,35 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 
 const LandingPage = () => {
   const { session, loading, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary">Laden...</div>;
-  }
+  useEffect(() => {
+    if (loading) return;
 
-  // If user is logged in, redirect to home
-  if (session || isAuthenticated) {
-    return <Navigate to="/home" replace />;
-  }
+    // If user is logged in, go to home
+    if (session) {
+      navigate("/home", { replace: true });
+      return;
+    }
 
-  // Otherwise show onboarding
-  return <Onboarding />;
+    // If not logged in and not in guest mode, activate guest mode and go to home
+    if (!isAuthenticated) {
+      setGuestMode(true);
+      // Give a tick for localStorage to update before navigating
+      requestAnimationFrame(() => {
+        navigate("/home", { replace: true });
+      });
+    } else {
+      // Already in guest mode, go to home
+      navigate("/home", { replace: true });
+    }
+  }, [loading, session, isAuthenticated, navigate]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary">
+      <p className="text-gray-600">Wird geladen...</p>
+    </div>
+  );
 };
 
 const App = () => (
