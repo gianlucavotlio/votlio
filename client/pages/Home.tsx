@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/useAuth";
 import { UserStats } from "@/components/UserStats";
 import { GuestModeBanner } from "@/components/GuestModeBanner";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
+import { Footer } from "@/components/Footer";
 import { UserProfileContext } from "@/contexts/UserProfileContext";
 import { useContext } from "react";
 
@@ -453,13 +454,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border mt-12 sm:mt-16">
-        <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <p className="text-center text-xs sm:text-sm text-muted-foreground">
-            © 2026 Votlio
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

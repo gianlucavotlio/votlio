@@ -8,6 +8,7 @@ import {
 } from "@/lib/sampleData";
 import { useCompletedLevels } from "@/lib/useCompletedLevels";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
+import { Footer } from "@/components/Footer";
 
 export default function TopicDetail() {
   const { topicId } = useParams<{ topicId: string }>();
@@ -169,13 +170,7 @@ export default function TopicDetail() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border mt-12 sm:mt-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <p className="text-center text-sm text-muted-foreground">
-            © 2024 Votlio - Lerne Politik spielerisch
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

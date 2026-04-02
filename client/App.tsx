@@ -17,6 +17,8 @@ import AnalysisResult from "./pages/AnalysisResult";
 import AdminPanel from "./pages/AdminPanel";
 import Leaderboard from "./pages/Leaderboard";
 import PoliticalTest from "./pages/PoliticalTest";
+import Impressum from "./pages/Impressum";
+import Datenschutz from "./pages/Datenschutz";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import { UserProfileProvider } from "./contexts/UserProfileContext";
@@ -73,6 +75,8 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/political-test" element={<PoliticalTest />} />
+            <Route path="/impressum" element={<Impressum />} />
+            <Route path="/datenschutz" element={<Datenschutz />} />
             <Route
               path="/rank-progression"
               element={
