@@ -54,29 +54,28 @@ const LandingPage = () => {
     if (loading) return;
 
     // If user is logged in, go to home
-    if (session) {
-      navigate("/home", { replace: true });
-      return;
-    }
-
-    // If not logged in and not in guest mode, activate guest mode and go to home
-    if (!isAuthenticated) {
-      setGuestMode(true);
-      // Give a tick for localStorage to update before navigating
-      requestAnimationFrame(() => {
-        navigate("/home", { replace: true });
-      });
-    } else {
-      // Already in guest mode, go to home
+    if (session || isAuthenticated) {
       navigate("/home", { replace: true });
     }
+    // Otherwise, show onboarding (don't auto-navigate)
   }, [loading, session, isAuthenticated, navigate]);
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary">
-      <p className="text-gray-600">Wird geladen...</p>
-    </div>
-  );
+  // Show loading screen while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary">
+        <p className="text-gray-600">Wird geladen...</p>
+      </div>
+    );
+  }
+
+  // If already authenticated or in guest mode, the useEffect above will navigate
+  if (session || isAuthenticated) {
+    return null;
+  }
+
+  // Show onboarding if not authenticated and not in guest mode
+  return <Onboarding />;
 };
 
 const App = () => (

@@ -1,20 +1,17 @@
-import { useNavigate, useEffect, useState } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { setGuestMode } from "@/lib/useAuth";
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const [hasNavigated, setHasNavigated] = useState(false);
 
-  // Auto-enter guest mode and navigate to home immediately on load
-  useEffect(() => {
-    if (hasNavigated) return; // Prevent multiple navigations
-
-    setHasNavigated(true);
-    // Set guest mode first
+  const handleStartClick = () => {
+    // Activate guest mode and navigate to home
     setGuestMode(true);
-    // Navigate to home (the URL change will trigger a re-render)
-    navigate("/home", { replace: true });
-  }, [navigate, hasNavigated]);
+    // Give a tick for localStorage to update before navigating
+    requestAnimationFrame(() => {
+      navigate("/home", { replace: true });
+    });
+  };
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-blue-50 via-white to-purple-50 flex flex-col px-4 sm:px-6 lg:px-8">
@@ -94,10 +91,19 @@ export default function Onboarding() {
         </div>
       </div>
 
-      {/* Bottom Section: Loading Message */}
-      <div className="pb-8 sm:pb-12 lg:pb-16 space-y-3 text-center">
-        <p className="text-base sm:text-lg text-gray-600 font-medium">
-          Wird geladen... 🚀
+      {/* Bottom Section: CTA Button */}
+      <div className="pb-8 sm:pb-12 lg:pb-16 space-y-3">
+        <button
+          onClick={handleStartClick}
+          type="button"
+          className="w-full py-4 sm:py-5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg sm:text-xl rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-2xl active:scale-95 cursor-pointer"
+        >
+          Los geht's 🚀
+        </button>
+        <p className="text-center text-xs sm:text-sm text-gray-500">
+          Du kannst später einen{" "}
+          <span className="text-blue-600 font-semibold">Selbsttest</span>{" "}
+          machen, um deine Position zu bestimmen
         </p>
       </div>
     </div>
